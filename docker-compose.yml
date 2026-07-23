@@ -41,6 +41,7 @@ services:
     - 8090:8080
     volumes:
     - ./php-custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+    - .:/var/www/html
 
   restore:
     image: supersqa/testlink:1.9.20
