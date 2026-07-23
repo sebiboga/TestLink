@@ -1,0 +1,57 @@
+networks: 
+  testlink:
+    name: testlink
+services:
+  db:
+    image: mysql:8.3.0
+    networks:
+    - testlink
+    restart: unless-stopped
+    user: mysql
+    environment:
+    - MYSQL_USER=${MYSQL_USER}
+    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    - MYSQL_DATABASE=${MYSQL_DATABASE}
+    volumes:
+    - mysql:/var/lib/mysql
+
+  maildev:
+    image: maildev/maildev:latest
+    networks:
+    - testlink
+    ports:
+    - 1080:1080
+    - 1025:1025
+    restart: unless-stopped
+    environment:
+    - NODE_TLS_REJECT_UNAUTHORIZED=0
+
+  app: &app
+    image: supersqa/testlink:1.9.20
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      maildev:
+        condition: service_started
+    networks:
+    - testlink
+    ports:
+    - 8090:8080
+    volumes:
+    - ./php-custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+
+  restore:
+    image: supersqa/testlink:1.9.20
+    depends_on:
+      app:
+        condition: service_started
+    restart: no
+    ports: []
+    profiles:
+    - tools
+    command: ['/bin/bash', '-c', 'cd ./docs/db_sample && ./restore_sample.sh']
+
+volumes:
+  mysql:

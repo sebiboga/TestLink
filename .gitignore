@@ -1,0 +1,35 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment & secrets
+.env
+.env.local
+.env.production
+CREDENTIALS.txt
+config_db.inc.php
+custom_config.inc.php
+
+# Logs
+logs/
+
+# Uploads
+upload_area/
+
+# PHP deps (reinstall via composer)
+vendor/
+composer.phar
+
+# Node deps (reinstall via npm/yarn)
+node_modules/
+
+# OS files
+**/._*
+.DS_Store
+Thumbs.db
+
+# Docker volumes (local data)
+mysql/
