@@ -1,21 +1,12 @@
-FROM php:7.4-apache
+FROM supersqa/testlink:1.9.20
 
-RUN apt update && apt upgrade -y
-RUN apt install -y \
-  default-mysql-client \
-  zlib1g-dev \
-  libpng-dev \
-  libjpeg-dev \
-  libfreetype-dev
-RUN docker-php-ext-install mysqli && \
-  docker-php-ext-enable mysqli && \
-  docker-php-ext-configure gd --with-freetype --with-jpeg && \
-  docker-php-ext-install gd
-RUN apt clean
-
-WORKDIR /var/www/html
-
-COPY . .
-COPY ./docker/php.ini-production /usr/local/etc/php/conf.d/php.ini
-
-RUN  chown -R www-data:www-data /var/www/html/gui/templates_c
+RUN sed -i 's|deb.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
+    sed -i 's|security.debian.org|archive.debian.org|g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends libgd-dev autoconf && \
+    cd /usr/src/php-*/ext/gd && phpize && \
+    ./configure --with-freetype-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr && \
+    make -j2 && make install && \
+    echo 'extension=gd.so' > /usr/local/etc/php/conf.d/gd.ini && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
